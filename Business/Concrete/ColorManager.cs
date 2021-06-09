@@ -1,4 +1,7 @@
 ﻿using Business.Abstract;
+using Business.Constans;
+using Core.Utilities.Results;
+using DataAccess.Abstract;
 using Entities.Concrete;
 using System;
 using System.Collections.Generic;
@@ -8,34 +11,37 @@ namespace Business.Concrete
 {
 	public class ColorManager : IColorService
 	{
-		public void AddCar(Color color)
+		IColorDal _colorDal;
+		public ColorManager(IColorDal carDal)
 		{
-			throw new NotImplementedException();
+			_colorDal = carDal;
+		}
+		public IDataResult<Color> GetById(int id)
+		{
+			return new SuccessDataResult<Color>(_colorDal.Get(c => c.ColorId == id));
 		}
 
-		public void DeleteCar(Color color)
+		public IDataResult<List<Color>> GetAll()
 		{
-			throw new NotImplementedException();
+			return new SuccessDataResult<List<Color>>(_colorDal.GetAll(), Messages.ColorsListed);
 		}
 
-		public List<Color> GetAll()
+		public IResult Add(Color color)
 		{
-			throw new NotImplementedException();
+			_colorDal.Add(color);
+			return new SuccessResult(Messages.ColorAdded);
 		}
 
-		public List<Color> GetCarsByBrandId(int id)
+		public IResult Delete(Color color)
 		{
-			throw new NotImplementedException();
+			_colorDal.Delete(color);
+			return new SuccessResult(Messages.ColorDeleted);
 		}
 
-		public List<Color> GetCarsByColorId(int id)
+		public IResult Update(Color color)
 		{
-			throw new NotImplementedException();
-		}
-
-		public void UpdateCar(Color color)
-		{
-			throw new NotImplementedException();
+			_colorDal.Update(color);
+			return new SuccessResult(Messages.ColorUpdated);
 		}
 	}
 }

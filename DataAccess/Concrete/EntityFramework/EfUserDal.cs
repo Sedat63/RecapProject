@@ -1,31 +1,51 @@
-﻿using Core.DataAccess.EntityFramework;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Core.DataAccess.EntityFramework;
 using Core.Entities.Conrete;
 using DataAccess.Abstract;
+using DataAccess.Concrete.EntityFramework;
+using Entities.Concrete;
 using Entities.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DataAccess.Concrete.EntityFramework
 {
-	public class EfUserDal : EfEntityRepositoryBase<User, RecapCarContext>, IUserDal
-	{
-		public List<OperationClaim> GetClaims(User user)
-		{
-			using (var context =new RecapCarContext())
-			{
-				//var result=from operationClaim in context.OperationClaims
-				//		   join UserOperationClaim in context.UserOperationClaims
-				//		   on OperationClaim.Id equals UserOperationClaim.OperationClaimId
-				//		   where UserOperationClaim.UserId==user.Id
-				//		   select new OperationClaim
-				throw new NotImplementedException();
-			}
-		}
+    public class EfUserDal : EfEntityRepositoryBase<User, RecapCarContext>, IUserDal
+    {
+        public List<OperationClaim> GetClaims(User user)
+        {
+            using (var context = new RecapCarContext())
+            {
+                var result = from operationClaim in context.OperationClaims
+                             join userOperationClaim in context.UserOperationClaims
+                                 on operationClaim.Id equals userOperationClaim.OperationClaimId
+                             where userOperationClaim.UserId == user.Id
+                             select new OperationClaim { Id = operationClaim.Id, Name = operationClaim.Name };
+                return result.ToList();
 
-		public UserDetailDto GetUserDetail(string userMail)
-		{
-			throw new NotImplementedException();
-		}
-	}
+            }
+        }
+        public UserDetailDto GetUserDetail(string userMail)
+        {
+            using (var context = new RecapCarContext())
+            {
+                var result =
+                    (from u in context.Users
+                     join c in context.Customers
+                         on u.Id equals c.UserId
+                     where u.Email == userMail
+                     select new UserDetailDto
+                     {
+                         Id = u.Id,
+                         CustomerId = c.Id,
+                         FirstName = u.FirstName,
+                         LastName = u.LastName,
+                         Email = u.Email,
+                         CompanyName = c.CompanyName
+                     }).First();
+                return result;
+            }
+        }
+    }
 }
